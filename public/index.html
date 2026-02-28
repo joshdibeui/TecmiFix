@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - TecmiFix</title>
+
+    <style>
+        :root {
+            --primary: #00a32e;
+            --secondary: #004a32;
+            --text-label: #555;
+            --border-color: #d1d1d1;
+            --bg: #ffffff;
+            --error-color: #dc3545;
+            --success-color: #28a745;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--bg);
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .brand-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .brand-logo {
+            width: 140px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        .app-name {
+            font-size: 2.2em;
+            font-weight: 900;
+            color: var(--primary);
+            margin: 0;
+            letter-spacing: -1px;
+        }
+
+        .app-name span {
+            color: #82c341;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+            border-left: 4px solid transparent;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: var(--error-color);
+            border-left-color: var(--error-color);
+            display: block;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: var(--success-color);
+            border-left-color: var(--success-color);
+            display: block;
+        }
+
+        /* Form Styles */
+        label {
+            display: block;
+            font-size: 14px;
+            color: var(--text-label);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 16px;
+            color: #333;
+            transition: all 0.3s ease;
+            background-color: #fafafa;
+        }
+
+        input::placeholder {
+            color: #aaa;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            outline: none;
+            background-color: var(--bg);
+            box-shadow: 0 0 0 3px rgba(0, 163, 46, 0.1);
+        }
+
+        input.error {
+            border-color: var(--error-color);
+            background-color: rgba(220, 53, 69, 0.05);
+        }
+
+        input.success {
+            border-color: var(--success-color);
+        }
+
+        /* Button Styles */
+        button, .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        button:hover:not(:disabled), .btn-submit:hover:not(:disabled) {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 163, 46, 0.3);
+        }
+
+        button:disabled, .btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Loading spinner */
+        .btn-submit.loading {
+            pointer-events: none;
+        }
+
+        .btn-submit.loading .btn-text {
+            visibility: hidden;
+        }
+
+        .btn-submit.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Link */
+        .link {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .link a {
+            color: var(--primary);
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .link a:hover {
+            text-decoration: underline;
+            color: var(--secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px;
+            }
+            .app-name {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- Brand Header -->
+        <div class="brand-header">
+            <img src="/img/logo_bonito_cortado.png" class="brand-logo" alt="Logo TecmiFix">
+            <h1 class="app-name">Tecmi<span>Fix</span></h1>
+        </div>
+
+        <!-- Alert Container for showAlert function -->
+        <div id="loginAlert" class="alert" role="alert"></div>
+
+        <!-- Login Form -->
+        <form id="loginForm" novalidate>
+            <!-- Email Field -->
+            <div class="form-group">
+                <label for="correo">
+                    Correo Institucional
+                </label>
+                <input 
+                    type="email" 
+                    id="correo" 
+                    placeholder="a00000000@tecmilenio.mx"
+                    autocomplete="email"
+                >
+            </div>
+
+            <!-- Password Field -->
+            <div class="form-group">
+                <label for="password">
+                    Contraseña
+                </label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    placeholder="••••••••"
+                    autocomplete="current-password"
+                >
+            </div>
+
+            <!-- Submit Button with ID for setLoading -->
+            <button type="submit" id="loginBtn" class="btn-submit">
+                <span class="btn-text">Inicia Sesión</span>
+            </button>
+        </form>
+
+        <!-- Registration Link -->
+        <div class="link">
+            ¿No tienes cuenta? <a href="/registro.html">Regístrate aquí</a>
+        </div>
+
+    </div>
+
+    <!-- Script - Points to Netlify Functions -->
+    <script src="/js/script.js"></script>
+
+    <script>
+        // Additional login-specific functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            const correoInput = document.getElementById('correo');
+            const passwordInput = document.getElementById('password');
+            const submitBtn = document.getElementById('loginBtn');
+
+            // Clear error state when user types
+            correoInput?.addEventListener('input', function() {
+                this.classList.remove('error');
+                const alert = document.getElementById('loginAlert');
+                if (alert && alert.classList.contains('alert-error')) {
+                    alert.style.display = 'none';
+                    alert.innerHTML = '';
+                }
+            });
+
+            passwordInput?.addEventListener('input', function() {
+                this.classList.remove('error');
+            });
+
+            // Prevent form resubmission on refresh
+            if (window.history.replaceState) {
+                window.history.replaceState(null, null, window.location.href);
+            }
+
+            console.log('Login page initialized');
+        });
+    </script>
+
+</body>
+</html>

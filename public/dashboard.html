@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportar Falla - TecmiFix</title>
+
+    <style>
+        :root {
+            --primary: #00a32e;
+            --secondary: #004a32;
+            --accent: #82c341;
+            --bg-light: #e8f5e9;
+            --text-label: #555;
+            --border-color: #d1d1d1;
+            --error-color: #dc3545;
+            --success-color: #28a745;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-light) 0%, #c8e6c9 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        /* Banner */
+        .banner {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 163, 46, 0.3);
+        }
+
+        .banner h1 {
+            margin: 0;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .banner p {
+            margin: 8px 0 0 0;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        /* User Info Bar */
+        .user-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .user-info {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .user-info strong {
+            color: var(--primary);
+        }
+
+        .btn-logout {
+            background: var(--error-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: #c82333;
+        }
+
+        /* My Tickets Button */
+        .btn-my-tickets {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            width: 100%;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-my-tickets:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        /* Form Card */
+        .form-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+            border-left: 4px solid transparent;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: var(--error-color);
+            border-left-color: var(--error-color);
+            display: block;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: var(--success-color);
+            border-left-color: var(--success-color);
+            display: block;
+        }
+
+        /* Form Elements */
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+            margin-top: 20px;
+        }
+
+        label:first-of-type {
+            margin-top: 0;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.3s;
+            background-color: #fafafa;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(0, 163, 46, 0.1);
+        }
+
+        input.error, select.error, textarea.error {
+            border-color: var(--error-color);
+            background-color: rgba(220, 53, 69, 0.05);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Date/Time Row */
+        .datetime-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* Upload Zone */
+        .upload-container {
+            border: 2px dashed var(--border-color);
+            background: #f9f9f9;
+            padding: 25px 20px;
+            text-align: center;
+            border-radius: 12px;
+            margin-top: 10px;
+        }
+
+        .upload-container p {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .btn-select-images {
+            background: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-select-images:hover {
+            background: var(--secondary);
+            transform: scale(1.05);
+        }
+
+        /* Preview Gallery */
+        .preview-gallery {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .preview-item {
+            position: relative;
+            width: 100%;
+            padding-top: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid var(--border-color);
+        }
+
+        .preview-item img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .badge-images {
+            background: #ffa000;
+            color: white;
+            padding: 3px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 163, 46, 0.3);
+        }
+
+        .btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Loading State */
+        .btn-submit.loading .btn-text {
+            visibility: hidden;
+        }
+
+        .btn-submit.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .datetime-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .preview-gallery {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .form-card {
+                padding: 20px;
+            }
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: var(--primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            width: auto;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        /* Ticket Card in Modal */
+        .ticket-card {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .ticket-folio {
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .ticket-status {
+            font-size: 12px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            text-transform: capitalize;
+        }
+
+        .status-abierto { background: #fff3cd; color: #856404; }
+        .status-en_progreso { background: #cce5ff; color: #004085; }
+        .status-cerrado { background: #d4edda; color: #155724; }
+
+        .priority-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .priority-baja { background: #d4edda; color: #155724; }
+        .priority-media { background: #fff3cd; color: #856404; }
+        .priority-alta { background: #ffeeba; color: #856404; }
+        .priority-critica { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- Banner -->
+        <div class="banner">
+            <h1>🛠️ Reporte de Mantenimiento</h1>
+            <p>Universidad Tecmilenio - Sistema de Gestión</p>
+        </div>
+
+        <!-- User Bar -->
+        <div class="user-bar">
+            <div class="user-info">
+                Bienvenido, <strong id="userName">Usuario</strong>
+            </div>
+            <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
+        </div>
+
+        <!-- My Tickets Button -->
+        <button class="btn-my-tickets" id="verMisTicketsBtn">
+            📋 Ver Mis Tickets
+        </button>
+
+        <!-- Form Card -->
+        <div class="form-card">
+            
+            <!-- Alert Container (required by script.js) -->
+            <div id="ticketAlert" class="alert" role="alert"></div>
+
+            <!-- Ticket Form (id must match script.js) -->
+            <form id="ticketForm" novalidate>
+                
+                <!-- Area/Department -->
+                <label for="area">📍 Área/Sector:</label>
+                <select id="area" required>
+                    <option value="">-- Selecciona el área --</option>
+                    <option value="Aulas">🏫 Aulas</option>
+                    <option value="Laboratorios">💻 Laboratorios</option>
+                    <option value="Biblioteca">📚 Biblioteca</option>
+                    <option value="Cafetería">☕ Cafetería</option>
+                    <option value="Estacionamiento">🚗 Estacionamiento</option>
+                    <option value="Oficinas">🏢 Oficinas</option>
+                    <option value="Áreas Comunes">🪑 Áreas Comunes</option>
+                    <option value="Otro">📝 Otro</option>
+                </select>
+
+                <!-- Issue Type -->
+                <label for="issue_type">⚠️ Tipo de Falla:</label>
+                <select id="issue_type" required>
+                    <option value="">-- Selecciona el tipo de falla --</option>
+                    <option value="electrica">🔌 Falla Eléctrica</option>
+                    <option value="plomeria">💧 Falla de Plomería</option>
+                    <option value="aire_acondicionado">❄️ Aire Acondicionado</option>
+                    <option value="mobiliario">🪑 Mobiliario</option>
+                    <option value="limpieza">🧹 Limpieza</option>
+                    <option value="seguridad">🔒 Seguridad</option>
+                    <option value="otro">📝 Otro</option>
+                </select>
+
+                <!-- Priority -->
+                <label for="priority">🔥 Prioridad:</label>
+                <select id="priority">
+                    <option value="baja">🟢 Baja</option>
+                    <option value="media" selected>🟡 Media</option>
+                    <option value="alta">🟠 Alta</option>
+                    <option value="critica">🔴 Crítica</option>
+                </select>
+
+                <!-- Description -->
+                <label for="description">📝 Descripción del problema:</label>
+                <textarea id="description" rows="4" placeholder="Describe detalladamente el problema..."></textarea>
+
+                <!-- Date/Time (auto-filled but editable) -->
+                <div class="datetime-row">
+                    <div>
+                        <label for="fecha">📅 Fecha:</label>
+                        <input type="date" id="fecha">
+                    </div>
+                    <div>
+                        <label for="hora">⏰ Hora:</label>
+                        <input type="time" id="hora">
+                    </div>
+                </div>
+
+                <!-- Image Upload -->
+                <label>📷 Evidencia Gráfica <span class="badge-images" id="imgCount">0/3 imágenes</span></label>
+                <div class="upload-container">
+                    <p>Máximo 3 imágenes (JPG, PNG)</p>
+                    <button type="button" class="btn-select-images" onclick="document.getElementById('fileInput').click()">
+                        📂 Seleccionar Imágenes
+                    </button>
+                    <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+                    
+                    <div class="preview-gallery" id="previewGallery"></div>
+                </div>
+
+                <!-- Submit Button (id must match script.js) -->
+                <button type="submit" id="ticketBtn" class="btn-submit">
+                    <span class="btn-text">📥 Enviar Reporte</span>
+                </button>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- My Tickets Modal -->
+    <div id="ticketsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📋 Mis Tickets</h2>
+                <button class="modal-close" onclick="cerrarModal('ticketsModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="misTicketsList">
+                    <p>Cargando tickets...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script src="/js/script.js"></script>
+
+    <script>
+        // Page-specific functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date and time
+            const now = new Date();
+            const fechaInput = document.getElementById('fecha');
+            const horaInput = document.getElementById('hora');
+            
+            if (fechaInput) {
+                fechaInput.value = now.toISOString().split('T')[0];
+            }
+            if (horaInput) {
+                horaInput.value = now.toTimeString().substring(0, 5);
+            }
+
+            // Get user from storage and display
+            const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+            const userNameEl = document.getElementById('userName');
+            if (userNameEl && user.name) {
+                userNameEl.textContent = user.name;
+            }
+
+            console.log('Dashboard page initialized');
+        });
+
+        // Auto-close any alerts when user starts typing
+        document.querySelectorAll('input, select, textarea').forEach(input => {
+            input.addEventListener('input', function() {
+                this.classList.remove('error');
+                const alert = document.getElementById('ticketAlert');
+                if (alert) {
+                    alert.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
