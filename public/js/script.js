@@ -109,7 +109,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         registroForm.addEventListener("submit", async function (e) {
             e.preventDefault();
-            nullifyEvents();
 
             const nameInput = document.getElementById("name");
             const emailInput = document.getElementById("email");
@@ -173,7 +172,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         loginForm.addEventListener("submit", async function (e) {
             e.preventDefault();
-            nullifyEvents();
 
             const emailInput = document.getElementById("correo") || document.getElementById("email");
             const passwordInput = document.getElementById("password");
