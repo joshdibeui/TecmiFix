@@ -519,14 +519,14 @@ document.addEventListener("DOMContentLoaded", function () {
             if (respuesta.status === 401) {
                 clearAuthData();
                 nullifyEvents();
-                window.location.href = '/login.html';
+                window.location.href = '/index.html';
                 return;
             }
 
         } catch (error) {
             console.error('Error verificando sesión:', error);
             clearAuthData();
-            window.location.href = '/login.html';
+            window.location.href = '/index.html';
         }
     }
 
@@ -551,12 +551,12 @@ async function logout() {
 
         clearAuthData();
         nullifyEvents();
-        window.location.href = '/login.html';
+        window.location.href = '/index.html';
 
     } catch (error) {
         console.error('Error al cerrar sesión:', error);
         clearAuthData();
-        window.location.href = '/login.html';
+        window.location.href = '/index.html';
     }
 }
 
