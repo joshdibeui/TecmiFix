@@ -151,7 +151,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (respuesta.ok) {
                     showAlert('registroAlert', '✅ Registro exitoso. Redirigiendo al login...', 'success', 2000);
                     setTimeout(() => {
-                        window.location.href = "/login.html";
+                        window.location.href = "/index.html";
                     }, 2000);
                 } else {
                     showAlert('registroAlert', `❌ ${resultado.message || 'Error en el registro'}`, 'error');
