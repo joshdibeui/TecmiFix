@@ -6,15 +6,27 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
+const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS'
+};
+
 exports.handler = async (event, context) => {
+    // Handle CORS preflight
+    if (event.httpMethod === 'OPTIONS') {
+        return {
+            statusCode: 200,
+            headers,
+            body: ''
+        };
+    }
+
     // Only allow POST
     if (event.httpMethod !== 'POST') {
         return {
             statusCode: 405,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'Content-Type'
-            },
+            headers,
             body: JSON.stringify({ error: 'Method not allowed' })
         };
     }
@@ -26,10 +38,7 @@ exports.handler = async (event, context) => {
         if (!name || !email || !password) {
             return {
                 statusCode: 400,
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Headers': 'Content-Type'
-                },
+                headers,
                 body: JSON.stringify({ error: 'Todos los campos son requeridos' })
             };
         }
@@ -39,10 +48,7 @@ exports.handler = async (event, context) => {
         if (!emailRegex.test(email)) {
             return {
                 statusCode: 400,
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Headers': 'Content-Type'
-                },
+                headers,
                 body: JSON.stringify({ error: 'Correo institucional requerido (@tecmilenio.mx)' })
             };
         }
@@ -56,10 +62,7 @@ exports.handler = async (event, context) => {
         if (existingUser.rows.length > 0) {
             return {
                 statusCode: 409,
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Headers': 'Content-Type'
-                },
+                headers,
                 body: JSON.stringify({ error: 'El correo ya está registrado' })
             };
         }
@@ -80,10 +83,7 @@ exports.handler = async (event, context) => {
 
         return {
             statusCode: 201,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'Content-Type'
-            },
+            headers,
             body: JSON.stringify({
                 message: 'Usuario registrado exitosamente',
                 user: {
@@ -98,10 +98,7 @@ exports.handler = async (event, context) => {
         console.error('Registration error:', error);
         return {
             statusCode: 500,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'Content-Type'
-            },
+            headers,
             body: JSON.stringify({ error: 'Error interno del servidor' })
         };
     }

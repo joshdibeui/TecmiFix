@@ -4,7 +4,8 @@
    ============================== */
 
 // Configuration
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+// Use relative path to Netlify Functions - works both locally and in production
+const API_BASE_URL = '/api';
 
 // Global State
 let appState = {
@@ -140,7 +141,7 @@ document.addEventListener("DOMContentLoaded", function () {
             };
 
             try {
-                const respuesta = await fetch(`${API_BASE_URL}/auth/register`, {
+                const respuesta = await fetch(`${API_BASE_URL}/register`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(datos)
@@ -196,7 +197,7 @@ document.addEventListener("DOMContentLoaded", function () {
             };
 
             try {
-                const respuesta = await fetch(`${API_BASE_URL}/auth/login`, {
+                const respuesta = await fetch(`${API_BASE_URL}/login`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(datos),
@@ -300,7 +301,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 issue_type: issueTypeInput.value.trim(),
                 priority: priorityInput?.value || 'medio',
                 description: descriptionInput.value.trim(),
-                imagenes: appState.imagenesBase64
+                images: appState.imagenesBase64
             };
 
             try {
@@ -457,7 +458,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function mostrarMisTickets() {
         try {
-            const respuesta = await fetch(`${API_BASE_URL}/tickets/user/my-tickets`, {
+            const respuesta = await fetch(`${API_BASE_URL}/tickets?my=true`, {
                 headers: getAuthHeader()
             });
 
@@ -513,7 +514,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function verificarSesion() {
         try {
-            const respuesta = await fetch(`${API_BASE_URL}/auth/verify`, {
+            const respuesta = await fetch(`${API_BASE_URL}/verify`, {
                 headers: getAuthHeader()
             });
 
@@ -544,7 +545,7 @@ async function logout() {
     try {
         const token = getToken();
         if (token) {
-            await fetch(`${API_BASE_URL}/auth/logout`, {
+            await fetch(`${API_BASE_URL}/logout`, {
                 method: 'POST',
                 headers: getAuthHeader()
             });
@@ -564,7 +565,7 @@ async function logout() {
 // Ver imágenes de ticket
 async function verImagenesTicket(ticketId) {
     try {
-        const respuesta = await fetch(`${API_BASE_URL}/tickets/${ticketId}/images`, {
+        const respuesta = await fetch(`${API_BASE_URL}/tickets?id=${ticketId}`, {
             headers: getAuthHeader()
         });
 
@@ -573,8 +574,9 @@ async function verImagenesTicket(ticketId) {
         const gallery = document.getElementById("modalGallery");
         if (!gallery) return;
 
-        if (data.images && data.images.length > 0) {
-            gallery.innerHTML = data.images.map(img =>
+        const images = data.ticket?.images || data.images || [];
+        if (images && images.length > 0) {
+            gallery.innerHTML = images.map(img =>
                 `<img src="${img.image_url}" alt="evidencia" onclick="window.open(this.src, '_blank')">`
             ).join('');
         } else {
@@ -593,7 +595,7 @@ async function verImagenesTicket(ticketId) {
 // Ver detalle de ticket
 async function verDetalleTicket(ticketId) {
     try {
-        const respuesta = await fetch(`${API_BASE_URL}/tickets/${ticketId}`, {
+        const respuesta = await fetch(`${API_BASE_URL}/tickets?id=${ticketId}`, {
             headers: getAuthHeader()
         });
 
@@ -658,10 +660,11 @@ async function cambiarEstatusTicket(ticketId, nuevoEstatus) {
     const notas = prompt('Agregar notas sobre este cambio (opcional):', '');
 
     try {
-        const respuesta = await fetch(`${API_BASE_URL}/tickets/${ticketId}/status`, {
+        const respuesta = await fetch(`${API_BASE_URL}/tickets-update`, {
             method: 'PUT',
             headers: getAuthHeader(),
             body: JSON.stringify({
+                ticketId: ticketId,
                 status: nuevoEstatus,
                 notes: notas || null
             })

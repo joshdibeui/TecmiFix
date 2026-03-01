@@ -59,7 +59,8 @@ exports.handler = async (event, context) => {
     // GET - List tickets
     if (event.httpMethod === 'GET') {
         try {
-            const { id } = event.queryStringParameters || {};
+            const queryParams = event.queryStringParameters || {};
+            const { id, my } = queryParams;
 
             // Get single ticket with details
             if (id) {
@@ -107,6 +108,25 @@ exports.handler = async (event, context) => {
                             updates: updatesResult.rows
                         }
                     })
+                };
+            }
+
+            // List user's own tickets (my=true)
+            if (my === 'true') {
+                const result = await pool.query(
+                    `SELECT t.*, COUNT(ti.id) as image_count
+                     FROM tickets t
+                     LEFT JOIN ticket_images ti ON t.id = ti.ticket_id
+                     WHERE t.user_id = $1
+                     GROUP BY t.id
+                     ORDER BY t.created_at DESC`,
+                    [user.userId]
+                );
+
+                return {
+                    statusCode: 200,
+                    headers,
+                    body: JSON.stringify({ tickets: result.rows })
                 };
             }
 
@@ -230,35 +250,6 @@ exports.handler = async (event, context) => {
             };
         } finally {
             client.release();
-        }
-    }
-
-    // GET /tickets/my-tickets - User's own tickets
-    if (event.path.endsWith('/my-tickets') && event.httpMethod === 'GET') {
-        try {
-            const result = await pool.query(
-                `SELECT t.*, COUNT(ti.id) as image_count
-                 FROM tickets t
-                 LEFT JOIN ticket_images ti ON t.id = ti.ticket_id
-                 WHERE t.user_id = $1
-                 GROUP BY t.id
-                 ORDER BY t.created_at DESC`,
-                [user.userId]
-            );
-
-            return {
-                statusCode: 200,
-                headers,
-                body: JSON.stringify({ tickets: result.rows })
-            };
-
-        } catch (error) {
-            console.error('Get my tickets error:', error);
-            return {
-                statusCode: 500,
-                headers,
-                body: JSON.stringify({ error: 'Error al obtener tickets' })
-            };
         }
     }
 

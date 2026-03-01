@@ -1,6 +1,39 @@
 [build]
   functions = "netlify/functions"
 
+# Main API redirects
+[[redirects]]
+  from = "/api/register"
+  to = "/.netlify/functions/register"
+  status = 200
+
+[[redirects]]
+  from = "/api/login"
+  to = "/.netlify/functions/login"
+  status = 200
+
+[[redirects]]
+  from = "/api/logout"
+  to = "/.netlify/functions/logout"
+  status = 200
+
+[[redirects]]
+  from = "/api/verify"
+  to = "/.netlify/functions/verify"
+  status = 200
+
+# Tickets endpoints
+[[redirects]]
+  from = "/api/tickets"
+  to = "/.netlify/functions/tickets"
+  status = 200
+
+[[redirects]]
+  from = "/api/tickets-update"
+  to = "/.netlify/functions/tickets-update"
+  status = 200
+
+# Catch remaining /api/* as fallback
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"

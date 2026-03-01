@@ -2,14 +2,26 @@ const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
+const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS'
+};
+
 exports.handler = async (event, context) => {
+    // Handle CORS preflight
+    if (event.httpMethod === 'OPTIONS') {
+        return {
+            statusCode: 200,
+            headers,
+            body: ''
+        };
+    }
+
     if (event.httpMethod !== 'GET') {
         return {
             statusCode: 405,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-            },
+            headers,
             body: JSON.stringify({ error: 'Method not allowed' })
         };
     }
@@ -20,10 +32,7 @@ exports.handler = async (event, context) => {
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
             return {
                 statusCode: 401,
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-                },
+                headers,
                 body: JSON.stringify({ error: 'Token no proporcionado' })
             };
         }
@@ -35,10 +44,7 @@ exports.handler = async (event, context) => {
 
         return {
             statusCode: 200,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-            },
+            headers,
             body: JSON.stringify({
                 valid: true,
                 user: {
@@ -53,20 +59,14 @@ exports.handler = async (event, context) => {
         if (error.name === 'TokenExpiredError') {
             return {
                 statusCode: 401,
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-                },
+                headers,
                 body: JSON.stringify({ error: 'Token expirado' })
             };
         }
 
         return {
             statusCode: 401,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-            },
+            headers,
             body: JSON.stringify({ error: 'Token inválido' })
         };
     }

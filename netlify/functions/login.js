@@ -9,14 +9,26 @@ const pool = new Pool({
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
+const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS'
+};
+
 exports.handler = async (event, context) => {
+    // Handle CORS preflight
+    if (event.httpMethod === 'OPTIONS') {
+        return {
+            statusCode: 200,
+            headers,
+            body: ''
+        };
+    }
+
     if (event.httpMethod !== 'POST') {
         return {
             statusCode: 405,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'Content-Type'
-            },
+            headers,
             body: JSON.stringify({ error: 'Method not allowed' })
         };
     }
@@ -27,10 +39,7 @@ exports.handler = async (event, context) => {
         if (!email || !password) {
             return {
                 statusCode: 400,
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Headers': 'Content-Type'
-                },
+                headers,
                 body: JSON.stringify({ error: 'Correo y contraseña requeridos' })
             };
         }
@@ -48,10 +57,7 @@ exports.handler = async (event, context) => {
         if (result.rows.length === 0) {
             return {
                 statusCode: 401,
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Headers': 'Content-Type'
-                },
+                headers,
                 body: JSON.stringify({ error: 'Credenciales inválidas' })
             };
         }
@@ -63,10 +69,7 @@ exports.handler = async (event, context) => {
         if (!validPassword) {
             return {
                 statusCode: 401,
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Headers': 'Content-Type'
-                },
+                headers,
                 body: JSON.stringify({ error: 'Credenciales inválidas' })
             };
         }
@@ -95,6 +98,7 @@ exports.handler = async (event, context) => {
                     id: user.id,
                     name: user.name,
                     email: user.email,
+                    role: !!user.is_staff ? 'admin' : 'user',
                     is_staff: !!user.is_staff,
                     specialty: user.specialty
                 }
@@ -105,10 +109,7 @@ exports.handler = async (event, context) => {
         console.error('Login error:', error);
         return {
             statusCode: 500,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'Content-Type'
-            },
+            headers,
             body: JSON.stringify({ error: 'Error interno del servidor' })
         };
     }
